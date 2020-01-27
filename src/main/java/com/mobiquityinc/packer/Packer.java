@@ -19,6 +19,25 @@ public class Packer {
   }
 
   public static String pack(String filePath) throws APIException {
+    List<DeliveryBox> deliveryBoxes = getDeliveryBoxes(filePath);
+
+    return deliveryBoxes.stream()
+            .flatMap(deliveryBox->deliveryBox.getPackageList().stream())
+            .map(Package::getIndex)
+            .map(item-> item.toString())
+            .collect( Collectors.joining(",") );
+  }
+  public static String packWithCompleteInformation(String filePath) throws APIException {
+    List<DeliveryBox> deliveryBoxes = getDeliveryBoxes(filePath);
+
+    return deliveryBoxes.stream()
+            .flatMap(deliveryBox->deliveryBox.getPackageList().stream())
+            .map(Package::toString)
+            .collect( Collectors.joining(",") );
+  }
+
+
+  private static List<DeliveryBox> getDeliveryBoxes(String filePath) {
     //Task Manager
     PackageTaskManager taskManager = new PackageTaskManager();
     //Task list
@@ -33,10 +52,6 @@ public class Packer {
             .map(item -> taskManager.executeTask(subPackagesTask,item))
             .map(item -> taskManager.executeTask(bestOptionTask, item))
             .collect(Collectors.toList());
-
-    return deliveryBoxes.stream()
-            .flatMap(deliveryBox->deliveryBox.getPackageList().stream())
-            .map(Package::toString)
-            .collect( Collectors.joining(",") );
+    return deliveryBoxes;
   }
 }
